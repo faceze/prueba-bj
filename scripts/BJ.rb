@@ -1097,11 +1097,15 @@ EOD
 			puts beatles
 			self.menu_inicial
 		else
-			puts
-			Colorear.rojo
-			puts "#{opcion} No es una opción válida, elija otra opción"
-			puts
-			self.menu_inicial
+			begin #Crea una excepción para evitar que se cierre el programa al ingresar ciertos caracteres
+				puts
+				Colorear.rojo
+				raise "#{opcion} No es una opción válida, elija otra opción"
+				puts
+			rescue Exception => e
+				puts e.message #mensaje de error
+				self.menu_inicial
+			end
 		end
 	end
 
