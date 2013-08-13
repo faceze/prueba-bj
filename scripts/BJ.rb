@@ -40,6 +40,7 @@ class Colorear
 	# => ROJO : 	12
 	# => VERDE : 	6 		# 10 = verde brillante. 2 = verde oscuro. 6 = verde pasto
 	# => BLANCO : 	15
+	# => AMARILLO : 14
 	# => DEFECTO : 	7
 	#
 	#-------------------
@@ -64,6 +65,10 @@ class Colorear
 		@set_console_txt_attrb.call(@hout,12)
 	end
 
+	def self.amarillo
+		@set_console_txt_attrb.call(@hout,14)
+	end
+
 	def self.blanco
 		@set_console_txt_attrb.call(@hout,15)
 	end
@@ -73,31 +78,28 @@ end
 ########################
 
 class SaveGame
+
+	def self.crear
+		File.open("savegame", "w") do |f|
+			f.write(Base64.encode64("Tu mama me mima: 1000"))
+		end
+	end
+
 	def self.guardar
 		# Acá va el código para guardar la partida
-=begin		
+		sustitucion = self.cargar.gsub!(/\b(\d+)/){$numero_nuevo}
 
-	# Este es tan solo un ejemplo de como abrir un archivo y codificarlo en base64
-
-		File.open('ruby.png', 'r') do|image_file|
-  			puts Base64.encode64(image_file.read)
+		File.open("savegame", "w") do |f|
+			f.write(Base64.encode64(sustitucion))
 		end
 
-		# Esta es una página de referencia que va a venir útil a la hora de nombrar los archivos:
-		http://stackoverflow.com/questions/1543171/how-can-i-output-leading-zeros-in-ruby
-
-	# Y otro ejemplo de como decodificar un archivo
-				
-		decode_base64_content = Base64.decode64(content) # este "content" debería ser pasado por una regex para obtener los datos necesarios
-
-  		File.open("index.txt", "w") do |f|  # se puede poner "wb" en vez de "w" para abrir como binario en caso de error
-  		  f.write(decode_base64_content)
-  		end
-=end
 	end
 
 	def self.cargar
 		# Acá va el código para cargar la partida
+		File.open('savegame', 'r') do|f|
+			Base64.decode64(f.read)
+		end
 	end
 end
 
@@ -189,6 +191,15 @@ class Jugar
 		end
 	end
 
+	def self.imprimir_monedas
+		puts
+		print "  Monedas : "
+		Colorear.amarillo
+		numero = $monedas.scan(/\b(\d+)/)
+		$numero_viejo = numero.join.to_i
+		print "%06d" % $numero_viejo #para cambiar la cantidad de monedas hacer $numero_viejo = ... o $numero_viejo +=, -= apuesta...
+		puts
+	end
 
 	system("cls")
 
@@ -219,9 +230,10 @@ class Jugar
 		#
 
 		#############################################--COMPUTADORA--##################################################
+		self.imprimir_monedas
 		puts
 		Colorear.verde_pasto
-		puts "  MIS CARTAS SON:"
+		puts "  MIS CARTAS SON (PC):"
 		puts "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" # alt + 223, alternativamente podría poner alt + 178
 		#puts
 		Colorear.verde_brillante
@@ -233,8 +245,6 @@ class Jugar
 		mi_carta_dos = self.dar_carta 
 		print "?\n" #self.imprimir(mi_carta_dos)
 		puts
-						#PARA FINES DEBUGGEADORES
-				#puts "#{mi_carta_uno} #{mi_carta_dos} "
 				
 		#Comprueba qué valor va a tener la carta A
 		if mi_carta_uno[0] + mi_carta_dos[0] == 22
@@ -244,7 +254,7 @@ class Jugar
 		end
 
 		Colorear.verde_pasto
-		print "Valor de mis cartas: "#{mi_carta_uno[0]} + #{mi_carta_dos[0]} = " #Se muestra el valor de las dos cartas para fines debuggeadores (el valor de A no se verá correctamente)
+		print "Valor de mis cartas: "
 		Colorear.rojo
 		print "#{mi_carta_uno[0]} + ?"#{suma_mis_cartas}"
 		Colorear.default
@@ -253,7 +263,7 @@ class Jugar
 		###############################################--JUGADOR--##################################################
 		puts
 		Colorear.verde_agua
-		puts "  TUS CARTAS SON:"
+		puts "  TUS CARTAS SON (USUARIO):"
 		puts "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 		#puts
 		Colorear.verde_brillante
@@ -265,8 +275,7 @@ class Jugar
 		tu_carta_dos = self.dar_carta
 		self.imprimir(tu_carta_dos)
 		puts
-						#PARA FINES DEBUGGEADORES
-					#puts "#{tu_carta_uno} #{tu_carta_dos} "
+						
 
 		#Comprueba qué valor va a tener la carta A
 		if tu_carta_uno[0] + tu_carta_dos[0] == 22
@@ -276,7 +285,7 @@ class Jugar
 		end
 
 		Colorear.verde_agua
-		print "Valor de tus cartas: "#{tu_carta_uno[0]} + #{tu_carta_dos[0]} = " #Se muestra el valor de las dos cartas para fines debuggeadores (el valor de A no se verá correctamente)
+		print "Valor de tus cartas: "
 		Colorear.verde_brillante
 		print "#{suma_tus_cartas}"
 		Colorear.default
@@ -344,6 +353,9 @@ class Jugar
 		#Si la PC saca 16 o menos, debe sacar otra carta, si es 17 o más debe plantarse
 		#Hay que fijarse qué pasa cuando se tienen dos Aces..... mejorar el comportamiento en estas situaciones
 		unless suma_tus_cartas == 21
+			puts
+			puts
+			puts
 			print "¿Querés otra carta o te plantás? \n\n" 
 			Colorear.verde_brillante
 			print "1)"
@@ -387,9 +399,10 @@ class Jugar
 
 
 		#############################################--COMPUTADORA--##################################################
+		self.imprimir_monedas
 		puts
 		Colorear.verde_pasto
-		puts "  MIS CARTAS SON:"
+		puts "  MIS CARTAS SON (PC):"
 		puts "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀" # alt + 223, alternativamente podría poner alt + 178
 		#puts
 		Colorear.verde_brillante
@@ -410,8 +423,7 @@ class Jugar
 
 		end
 		puts
-							#PARA FINES DEBUGGEADORES
-				#puts "#{mi_carta_uno} #{mi_carta_dos} #{mi_carta_extra}"
+				
 		
 		#Comprueba qué valor va a tener la carta A
 		if suma_mis_cartas > 21 && mi_carta_extra[0] == 11
@@ -430,7 +442,7 @@ class Jugar
 		###############################################--JUGADOR--##################################################
 		puts
 		Colorear.verde_agua
-		puts "  TUS CARTAS SON:"
+		puts "  TUS CARTAS SON (USUARIO):"
 		puts "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"
 		#puts
 		Colorear.verde_brillante
@@ -450,8 +462,7 @@ class Jugar
 
 		end
 		puts
-						#PARA FINES DEBUGGEADORES
-						#puts "#{tu_carta_uno} #{tu_carta_dos} #{tu_carta_extra}"
+						
 
 		#Comprueba qué valor va a tener la carta A
 		if suma_tus_cartas > 21 && tu_carta_extra[0] == 11
@@ -466,9 +477,7 @@ class Jugar
 		print "#{suma_tus_cartas}"
 		Colorear.default
 		puts
-		#PARA FINES DEBUGGEADORES
-		#puts "#{mi_carta_uno} #{mi_carta_dos} #{mi_carta_extra}"
-		#puts "#{tu_carta_uno} #{tu_carta_dos} #{tu_carta_extra}"
+		
 		puts
 #############################################################################FIN DEL CÓDIGO REPETIDO PARA REFACCIONAR Y METER EN UN MÉTODO############################
 
@@ -479,24 +488,36 @@ class Jugar
 			puts "¡BLACKJACK! — GANASTE"
 			Colorear.default
 			puts frases_derrota_blackjack[rand(0...frases_derrota_blackjack.length)] #Van los 3 puntos suspensivos (o .. y un length-1) porque length cuenta desde uno y el array desde 0
+			$numero_viejo += 333
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 
 		elsif suma_mis_cartas == 21 && suma_tus_cartas != 21 && mi_carta_extra == nil
 			Colorear.rojo
 			puts "¡BLACKJACK! — PERDISTE"
 			Colorear.default
 			puts frases_victoria_blackjack[rand(0...frases_victoria_blackjack.length)]
+			$numero_viejo -= 100
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 
 		elsif suma_mis_cartas > 21
 			Colorear.verde_brillante
 			puts "GANASTE"
 			Colorear.default
 			puts frases_derrota[rand(0...frases_derrota.length)]
+			$numero_viejo += 100
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 
 		elsif suma_tus_cartas > 21
 			Colorear.rojo
 			puts "PERDISTE"
 			Colorear.default
 			puts frases_victoria[rand(0...frases_victoria.length)]
+			$numero_viejo -= 100
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 
 		elsif suma_mis_cartas == suma_tus_cartas
 			Colorear.verde_pasto
@@ -509,12 +530,18 @@ class Jugar
 			puts "PERDISTE"
 			Colorear.default
 			puts frases_victoria[rand(0...frases_victoria.length)]
+			$numero_viejo -= 100
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 
 		elsif suma_tus_cartas > suma_mis_cartas
 			Colorear.verde_brillante
 			puts "GANASTE"
 			Colorear.default
 			puts frases_derrota[rand(0...frases_derrota.length)]
+			$numero_viejo += 100
+			$numero_nuevo = $numero_viejo
+			SaveGame.guardar
 		end
 
 		puts
@@ -525,7 +552,7 @@ class Jugar
 	end
 
 	def self.menu_inicial
-		titulo = <<EOD
+		titulo1 = <<EOD
 	  .     '     ,
 	    _________	     
 	 _ /_|_____|_\\ _                                               .---.
@@ -536,7 +563,9 @@ class Jugar
 	 /  .-.                                                              |
 	|  /   \\                                                             |
 	| |\\_.  |                                                            |
-	|\\|  | /|             FACUNDO'S BLACKJACK PARADISE                   |
+EOD
+
+titulo2 = <<EOD
 	| `---' |                                                            |
 	|       |                                                            | 
 	|       |                                                           /
@@ -547,13 +576,34 @@ class Jugar
 
 EOD
 		Colorear.rojo
-		puts titulo
+		puts titulo1
+		print "	|\\|  | /|             "
+		Colorear.amarillo
+		print "FACUNDO'S BLACKJACK PARADISE"
+		Colorear.rojo
+		print "                   |\n"
+		puts titulo2
 		puts "		Elija una opción:"
 		puts "		▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
 		puts
+		Colorear.blanco
+		print "		 1 "
+		Colorear.verde_brillante
+		print "→ "
 		Colorear.default
-		puts "		 1 → Comenzar un juego nuevo"
-		puts "		 2 → Salir"
+		print "Comenzar un juego nuevo\n"
+		Colorear.blanco
+		print "		 2 "
+		Colorear.verde_brillante
+		print "→ "
+		Colorear.default
+		print "Cargar partida anterior\n"
+		Colorear.blanco
+		print "		 3 "
+		Colorear.verde_brillante
+		print "→ "
+		Colorear.default
+		print "Salir\n"
 		Colorear.rojo
 		puts
 		puts "		▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"
@@ -564,10 +614,21 @@ EOD
 	
 		case opcion
 		when "1"
+			SaveGame.crear
+			$monedas = "1000"
 			self.iniciar
 		when "2"
+			if File.exist?("savegame")
+				$monedas = SaveGame.cargar
+				self.iniciar
+			else
+				SaveGame.crear
+				$monedas = "1000"
+				self.iniciar
+			end
+		when "3"
 			exit
-		when "facundo", "3", "33"
+		when "facundo", "33"
 			Colorear.default
 			facundo = <<EOD
 ,,....,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,:::::::::::::::~~~~~~~~~~~~~~~~~~=====
