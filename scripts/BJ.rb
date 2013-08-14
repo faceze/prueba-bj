@@ -226,7 +226,6 @@ class Jugar
 		# — Refinar el comportamiento de la máquina.
 		# — Expandir el diccionario de frases y mejorar la repetición del mismo.
 		# — Apuestas, y todo lo relacionado con dicha funcionalidad.
-		# — Capacidad para guardar y cargar partidas. Encriptar dicha información (base64 es suficiente)
 		#
 
 		#############################################--COMPUTADORA--##################################################
@@ -565,7 +564,7 @@ class Jugar
 	| |\\_.  |                                                            |
 EOD
 
-titulo2 = <<EOD
+		titulo2 = <<EOD
 	| `---' |                                                            |
 	|       |                                                            | 
 	|       |                                                           /
