@@ -597,7 +597,7 @@ EOD
 		Colorear.verde_brillante
 		print "→ "
 		Colorear.default
-		print "Cargar partida anterior\n"
+		print "Continuar partida\n"
 		Colorear.blanco
 		print "		 3 "
 		Colorear.verde_brillante
