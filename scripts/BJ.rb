@@ -10,19 +10,7 @@
 require 'Win32API' # Para colorear la consola de windows
 require "base64" # Para encriptar y desencriptar los archivos guardados
 
-here = <<EOD
-Código Ascii + palo:
-
-3. ♥ Corazón
-4. ♦ Diamante
-5. ♣ Trébol
-6. ♠ Pica
-
---------------------
-EOD
-
-#puts here
-
+# clase para colorear el texto de la consola (por el momento solo windows)
 class Colorear
 
 	@get_std_handle = Win32API.new("kernel32", "GetStdHandle", ['L'], 'L')
@@ -81,13 +69,13 @@ class SaveGame
 
 	def self.crear
 		File.open("savegame", "w") do |f|
-			f.write(Base64.encode64("Tu mama me mima: 1000"))
+			f.write(Base64.encode64("1000"))
 		end
 	end
 
 	def self.guardar
 		# Acá va el código para guardar la partida
-		sustitucion = self.cargar.gsub!(/\b(\d+)/){$numero_nuevo}
+		sustitucion = self.cargar.gsub!(/^-?\d+$/){$numero_nuevo}#(/\b(-?\d+)/){$numero_nuevo} #-? están para captar si el número es negativo
 
 		File.open("savegame", "w") do |f|
 			f.write(Base64.encode64(sustitucion))
@@ -192,11 +180,15 @@ class Jugar
 	end
 
 	def self.imprimir_monedas
+		numero = $monedas.scan(/^-?\d+$/) #(/\b(-?\d+)/) # -? para ver si el número es negativo
+		$numero_viejo = numero.join.to_i
 		puts
 		print "  Monedas : "
-		Colorear.amarillo
-		numero = $monedas.scan(/\b(\d+)/)
-		$numero_viejo = numero.join.to_i
+		if $numero_viejo <= 0
+			Colorear.rojo
+		else
+			Colorear.amarillo
+		end
 		print "%06d" % $numero_viejo #para cambiar la cantidad de monedas hacer $numero_viejo = ... o $numero_viejo +=, -= apuesta...
 		puts
 	end
@@ -478,6 +470,8 @@ class Jugar
 		puts
 		
 		puts
+		puts
+		puts
 #############################################################################FIN DEL CÓDIGO REPETIDO PARA REFACCIONAR Y METER EN UN MÉTODO############################
 
 
@@ -614,7 +608,7 @@ EOD
 		case opcion
 		when "1"
 			SaveGame.crear
-			$monedas = "1000"
+			$monedas = "1000" #Si no inicializamos la variable nos dará error cuando intente acceder a ella la primera vez
 			self.iniciar
 		when "2"
 			if File.exist?("savegame")
@@ -622,7 +616,7 @@ EOD
 				self.iniciar
 			else
 				SaveGame.crear
-				$monedas = "1000"
+				$monedas = "1000" #Si no inicializamos la variable nos dará error cuando intente acceder a ella la primera vez
 				self.iniciar
 			end
 		when "3"
