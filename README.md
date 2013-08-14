@@ -28,7 +28,7 @@ En un futuro indefinido:
   
 - Se podrán hacer apuestas.
   
-- Se podrán guardar las partidas.
+- Se podrán guardar las partidas. (Actualmente se puede continuar una partida iniciada, pero como falta un verdadero sistema de apuestas, la mecánica es un poco extraña).
   
 - Las computadoras van a desarrollar verdadera inteligencia y dominarán a la especie humana.
 
